@@ -11,6 +11,8 @@ from flask import Flask, flash, redirect, render_template, \
 
 from forms import RegisterForm, AddTaskForm, LoginForm
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
+import json
 
 #######################
 ####### config  #######
@@ -148,8 +150,13 @@ def register():
                 form.email.data,
                 form.password.data,
             )
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Thanks for registering. Please login.')
-            return redirect(url_for('login'))
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                flash('Thanks for registering. Please login.')
+                return redirect(url_for('login'))
+            except IntegrityError as ie:
+                print('Error occured: ', ie)
+                error = "Username {} or email {} already exists.".format(new_user.name, new_user.email)
+                return render_template('register.html', form=form, error=error)
     return render_template('register.html', form=form, error=error)
