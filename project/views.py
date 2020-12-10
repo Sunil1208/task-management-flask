@@ -55,6 +55,7 @@ def flash_errors(form):
 # route handlers
 
 @app.route('/logout')
+@login_required
 def logout():
     session.pop('logged_in', None)
     session.pop('user_id', None)
@@ -74,7 +75,7 @@ def login():
                 flash('Welcome!')
                 return redirect(url_for('tasks'))
             else:
-                error = 'Invalid username or password'
+                error = 'Invalid username or password.'
         else:
             error = 'Both fields are required.'
     return render_template('login.html', form=form, error=error)
@@ -157,6 +158,6 @@ def register():
                 return redirect(url_for('login'))
             except IntegrityError as ie:
                 print('Error occured: ', ie)
-                error = "Username {} or email {} already exists.".format(new_user.name, new_user.email)
+                error = "That username and/or email already exist."
                 return render_template('register.html', form=form, error=error)
     return render_template('register.html', form=form, error=error)
